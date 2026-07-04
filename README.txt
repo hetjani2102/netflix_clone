@@ -1,1 +1,1 @@
-Scaffold only. Full app code not included.
+Netlflix Clone Site where you can watch all content
