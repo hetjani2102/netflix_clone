@@ -32,7 +32,7 @@ import { showToast } from "../components/Toast";
 const SERVERS = [
   {
     id: "vidsrc",
-    name: "Server 1: VidSrc (Full Movie/Series)",
+    name: "Server 1: VidSrc (Full HD Movie/Series)",
     tag: "HD • Fast",
     isEmbed: true,
     getUrl: (id, type, s, e) =>
@@ -51,8 +51,28 @@ const SERVERS = [
         : `https://multiembed.mov/?video_id=${id}&tmdb=1`,
   },
   {
+    id: "vidsrc-xyz",
+    name: "Server 3: VidSrc.xyz (Fast Mirror)",
+    tag: "Fast HD",
+    isEmbed: true,
+    getUrl: (id, type, s, e) =>
+      type === "tv"
+        ? `https://vidsrc.xyz/embed/tv?tmdb=${id}&season=${s}&episode=${e}`
+        : `https://vidsrc.xyz/embed/movie?tmdb=${id}`,
+  },
+  {
+    id: "embed-su",
+    name: "Server 4: Embed.su (Multi-Host)",
+    tag: "1080p",
+    isEmbed: true,
+    getUrl: (id, type, s, e) =>
+      type === "tv"
+        ? `https://embed.su/embed/tv/${id}/${s}/${e}`
+        : `https://embed.su/embed/movie/${id}`,
+  },
+  {
     id: "vidsrc-me",
-    name: "Server 3: VidSrc.me (Backup)",
+    name: "Server 5: VidSrc.me (Backup)",
     tag: "Backup",
     isEmbed: true,
     getUrl: (id, type, s, e) =>
@@ -62,13 +82,13 @@ const SERVERS = [
   },
   {
     id: "official",
-    name: "Server 4: Official Cinema Stream",
+    name: "Server 6: Official Cinema Preview",
     tag: "Official • 0 Ads",
     isEmbed: false,
   },
   {
     id: "custom",
-    name: "Server 5: Custom Direct Video Stream",
+    name: "Server 7: Custom Direct Video Stream",
     tag: "MP4 / URL",
     isCustom: true,
   },
