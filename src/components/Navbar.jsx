@@ -8,7 +8,14 @@ import {
   Users,
   Bookmark,
   Sparkles,
-  Settings,
+  Zap,
+  Compass,
+  Film,
+  ShieldAlert,
+  Globe,
+  Smile,
+  Flame,
+  Heart,
 } from "lucide-react";
 import {
   getActiveProfile,
@@ -18,10 +25,23 @@ import {
 } from "../services/storage";
 import { showToast } from "./Toast";
 
+const HEADER_CATEGORIES = [
+  { name: "Action & Adventure", path: "/movies?genre=28", tag: "Popular", icon: Zap },
+  { name: "Sci-Fi & Cyberpunk", path: "/movies?genre=878", tag: "4K UHD", icon: Compass },
+  { name: "MoviesHub Originals", path: "/popular", tag: "Exclusive", icon: Sparkles },
+  { name: "Animation & Anime", path: "/movies?genre=16", tag: "Family", icon: Film },
+  { name: "Crime & Thrillers", path: "/tv?genre=80", tag: "18+ Noir", icon: ShieldAlert },
+  { name: "Docuseries & Nature", path: "/movies?genre=99", tag: "Reality", icon: Globe },
+  { name: "Comedies", path: "/movies?genre=35", tag: "Laughs", icon: Smile },
+  { name: "Horrors & Chills", path: "/movies?genre=27", tag: "Dark", icon: Flame },
+  { name: "Romance & Drama", path: "/movies?genre=10749", tag: "Stories", icon: Heart },
+];
+
 function Navbar({ onSwitchProfile }) {
   const [isScrolled, setIsScrolled] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [categoriesOpen, setCategoriesOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const [activeProfile, setActiveProfileState] = useState(getActiveProfile());
@@ -32,6 +52,7 @@ function Navbar({ onSwitchProfile }) {
   const searchInputRef = useRef(null);
   const profileRef = useRef(null);
   const notifRef = useRef(null);
+  const categoriesRef = useRef(null);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -61,6 +82,9 @@ function Navbar({ onSwitchProfile }) {
       }
       if (notifRef.current && !notifRef.current.contains(e.target)) {
         setNotificationsOpen(false);
+      }
+      if (categoriesRef.current && !categoriesRef.current.contains(e.target)) {
+        setCategoriesOpen(false);
       }
     };
     document.addEventListener("mousedown", handleClickOutside);
@@ -120,6 +144,48 @@ function Navbar({ onSwitchProfile }) {
           <NavLink to="/popular" className={({ isActive }) => (isActive ? "nav_item active" : "nav_item")}>
             New & Popular
           </NavLink>
+
+          {/* Categories Listing in Header like premier streaming apps */}
+          <div className="nav_categories_wrapper" ref={categoriesRef}>
+            <button
+              type="button"
+              className={`nav_item nav_categories_btn ${categoriesOpen ? "active" : ""}`}
+              onClick={() => setCategoriesOpen(!categoriesOpen)}
+            >
+              <span>Categories</span>
+              <ChevronDown size={14} className={`chevron ${categoriesOpen ? "rotate" : ""}`} />
+            </button>
+
+            {categoriesOpen && (
+              <div className="categories_dropdown_menu">
+                <div className="categories_dropdown_header">
+                  <span>Browse by Channel & Genre</span>
+                </div>
+                <div className="categories_dropdown_grid">
+                  {HEADER_CATEGORIES.map((cat) => {
+                    const Icon = cat.icon;
+                    return (
+                      <Link
+                        key={cat.name}
+                        to={cat.path}
+                        className="category_dropdown_item"
+                        onClick={() => setCategoriesOpen(false)}
+                      >
+                        <div className="cat_item_icon_box">
+                          <Icon size={16} />
+                        </div>
+                        <div className="cat_item_text">
+                          <span className="cat_item_name">{cat.name}</span>
+                          <span className="cat_item_tag">{cat.tag}</span>
+                        </div>
+                      </Link>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+          </div>
+
           <NavLink to="/watchlist" className={({ isActive }) => (isActive ? "nav_item active" : "nav_item")}>
             My List
           </NavLink>
@@ -304,6 +370,21 @@ function Navbar({ onSwitchProfile }) {
           <NavLink to="/movies" onClick={() => setMobileMenuOpen(false)}>Movies</NavLink>
           <NavLink to="/popular" onClick={() => setMobileMenuOpen(false)}>New & Popular</NavLink>
           <NavLink to="/watchlist" onClick={() => setMobileMenuOpen(false)}>My List</NavLink>
+
+          <div className="mobile_categories_group">
+            <span className="mobile_cat_title">Categories:</span>
+            {HEADER_CATEGORIES.map((cat) => (
+              <Link
+                key={cat.name}
+                to={cat.path}
+                className="mobile_cat_link"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                {cat.name}
+              </Link>
+            ))}
+          </div>
+
           <button className="mobile_link_btn" onClick={triggerSwitchProfileScreen}>Switch Profile</button>
           <button className="mobile_logout" onClick={logout}>Sign Out</button>
         </div>

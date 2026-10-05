@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import Navbar from "../components/Navbar";
 import Banner from "../components/Banner";
-import CategoryHubs from "../components/CategoryHubs";
+import HeaderCategoryPills from "../components/HeaderCategoryPills";
 import Row from "../components/Row";
 import MediaModal from "../components/MediaModal";
 import ProfileSelect from "../components/ProfileSelect";
@@ -53,14 +53,14 @@ function Home() {
 
       <Banner onOpenModal={setSelectedMedia} />
 
-      {/* Branded Category Hub Tiles (Apple TV+ / Prime Video style) */}
-      <CategoryHubs />
+      {/* Sleek horizontal streaming category pills in header bar */}
+      <HeaderCategoryPills />
 
       <div className="ott_rows_container">
         {/* Continue Watching for Active User */}
         {continueWatchingList.length > 0 && (
           <Row
-            title={`Continue Watching`}
+            title="Continue Watching"
             customItems={continueWatchingList}
             isBackdrop={true}
             isContinueWatching={true}

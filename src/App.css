@@ -777,8 +777,8 @@ button {
 .ott_rows_container {
   position: relative;
   z-index: 3;
-  margin-top: -50px;
-  padding-bottom: 60px;
+  margin-top: 20px;
+  padding-bottom: 70px;
   display: flex;
   flex-direction: column;
   gap: 40px;
@@ -890,125 +890,208 @@ button {
 }
 
 /* ==========================================================================
-   BRANDED CATEGORY HUBS (Apple TV+ / Prime Video / Disney+ Style)
+   HEADER CATEGORIES LISTING (DROPDOWN IN NAVBAR)
    ========================================================================== */
 
-.category_hubs_section {
-  padding: 10px 4% 20px 4%;
+.nav_categories_wrapper {
   position: relative;
-  z-index: 5;
 }
 
-.category_hubs_header {
-  margin-bottom: 14px;
-}
-
-.category_hubs_heading {
-  font-size: 20px;
-  font-weight: 700;
-  color: #e2e8f0;
-  letter-spacing: -0.3px;
-}
-
-.category_hubs_sub {
-  font-size: 12px;
-  color: var(--text-muted);
-}
-
-.category_hubs_grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 16px;
-}
-
-.category_hub_tile {
-  position: relative;
-  border-radius: var(--radius-md);
-  background: var(--bg-card);
-  border: 1px solid var(--border-subtle);
-  overflow: hidden;
-  cursor: pointer;
-  padding: 18px 16px;
-  min-height: 96px;
+.nav_categories_btn {
   display: flex;
   align-items: center;
-  transition: transform 0.28s cubic-bezier(0.2, 0, 0, 1), border-color 0.25s ease, box-shadow 0.25s ease;
+  gap: 5px;
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 13px;
+  font-weight: 600;
+  padding: 6px 14px;
+  border-radius: var(--radius-full);
+  transition: var(--transition-smooth);
 }
 
-.category_hub_tile:hover {
-  transform: translateY(-4px) scale(1.02);
-  border-color: rgba(255, 255, 255, 0.28);
-  box-shadow: 0 12px 30px var(--hub-glow, rgba(0, 0, 0, 0.6));
+.nav_categories_btn:hover,
+.nav_categories_btn.active {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.08);
 }
 
-.hub_tile_ambient_glow {
+.categories_dropdown_menu {
   position: absolute;
-  top: 0;
-  right: 0;
-  bottom: 0;
+  top: 48px;
   left: 0;
-  background: var(--hub-gradient);
-  opacity: 0.12;
-  transition: opacity 0.3s ease;
-  pointer-events: none;
+  width: 440px;
+  background: rgba(13, 16, 23, 0.96);
+  backdrop-filter: blur(28px);
+  -webkit-backdrop-filter: blur(28px);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-md);
+  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.85);
+  padding: 14px;
+  z-index: 1100;
+  animation: fadeIn 0.2s ease;
 }
 
-.category_hub_tile:hover .hub_tile_ambient_glow {
-  opacity: 0.28;
+.categories_dropdown_header {
+  padding: 4px 8px 10px 8px;
+  border-bottom: 1px solid var(--border-subtle);
+  margin-bottom: 10px;
 }
 
-.hub_tile_content {
-  position: relative;
-  z-index: 2;
+.categories_dropdown_header span {
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--accent-cyan);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.categories_dropdown_grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 6px;
+}
+
+.category_dropdown_item {
   display: flex;
   align-items: center;
-  gap: 14px;
-  width: 100%;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: var(--radius-sm);
+  transition: background 0.2s ease, transform 0.15s ease;
 }
 
-.hub_icon_bubble {
-  width: 44px;
-  height: 44px;
-  border-radius: 12px;
-  background: var(--hub-gradient);
+.category_dropdown_item:hover {
+  background: rgba(255, 255, 255, 0.08);
+  transform: translateX(3px);
+}
+
+.cat_item_icon_box {
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  background: rgba(99, 102, 241, 0.15);
+  color: var(--accent-cyan);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #fff;
   flex-shrink: 0;
-  box-shadow: 0 4px 14px var(--hub-glow);
-  transition: transform 0.3s ease;
+  border: 1px solid rgba(99, 102, 241, 0.3);
 }
 
-.category_hub_tile:hover .hub_icon_bubble {
-  transform: scale(1.1) rotate(4deg);
-}
-
-.hub_info {
+.cat_item_text {
   display: flex;
   flex-direction: column;
 }
 
-.hub_badge {
-  font-size: 9px;
+.cat_item_name {
+  font-size: 13px;
+  font-weight: 600;
+  color: #fff;
+  line-height: 1.2;
+}
+
+.cat_item_tag {
+  font-size: 10px;
+  color: var(--text-muted);
+}
+
+/* Mobile Drawer Category Links */
+.mobile_categories_group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 10px 0;
+  border-top: 1px solid var(--border-subtle);
+  border-bottom: 1px solid var(--border-subtle);
+  margin: 10px 0;
+}
+
+.mobile_cat_title {
+  font-size: 11px;
   font-weight: 800;
-  letter-spacing: 1px;
   color: var(--accent-cyan);
   text-transform: uppercase;
+  letter-spacing: 1px;
+  padding-left: 8px;
 }
 
-.hub_title {
-  font-size: 14px;
-  font-weight: 700;
-  color: #ffffff;
-  line-height: 1.25;
-  margin-top: 2px;
-}
-
-.hub_tagline {
-  font-size: 11px;
+.mobile_cat_link {
+  font-size: 13px;
   color: var(--text-secondary);
-  margin-top: 2px;
+  padding: 6px 12px;
+  border-radius: var(--radius-sm);
+  transition: background 0.2s ease;
+}
+
+.mobile_cat_link:hover {
+  background: var(--bg-elevated);
+  color: #fff;
+}
+
+/* ==========================================================================
+   STREAMING HEADER CATEGORY PILLS BAR (SLIM, MODERN, ZERO OVERLAP)
+   ========================================================================== */
+
+.header_category_bar {
+  padding: 22px 4% 8px 4%;
+  position: relative;
+  z-index: 10;
+}
+
+.category_pills_track {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  padding: 4px 0;
+}
+
+.category_pills_track::-webkit-scrollbar {
+  display: none;
+}
+
+.category_header_pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 18px;
+  background: rgba(19, 23, 34, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius-full);
+  color: var(--text-secondary);
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+  backdrop-filter: blur(12px);
+  transition: all 0.22s cubic-bezier(0.2, 0, 0, 1);
+  flex-shrink: 0;
+}
+
+.category_header_pill:hover {
+  color: #ffffff;
+  border-color: rgba(255, 255, 255, 0.3);
+  background: rgba(26, 32, 46, 0.95);
+  transform: translateY(-2px);
+}
+
+.category_header_pill.active {
+  color: #ffffff;
+  background: var(--accent-gradient);
+  border-color: transparent;
+  box-shadow: 0 4px 14px var(--accent-glow);
+}
+
+.pill_icon {
+  color: var(--accent-cyan);
+  transition: transform 0.2s ease;
+}
+
+.category_header_pill.active .pill_icon {
+  color: #ffffff;
 }
 
 /* ==========================================================================

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import Row from "../components/Row";
 import Banner from "../components/Banner";
@@ -35,10 +36,18 @@ const TV_GENRES = [
 ];
 
 function BrowseCategory({ type = "movie", pageTitle = "Movies" }) {
-  const [selectedGenre, setSelectedGenre] = useState("all");
+  const [searchParams] = useSearchParams();
+  const genreParam = searchParams.get("genre");
+  const [selectedGenre, setSelectedGenre] = useState(genreParam || "all");
   const [gridItems, setGridItems] = useState([]);
   const [loading, setLoading] = useState(false);
   const [selectedMedia, setSelectedMedia] = useState(null);
+
+  useEffect(() => {
+    if (genreParam) {
+      setSelectedGenre(isNaN(genreParam) ? genreParam : Number(genreParam));
+    }
+  }, [genreParam]);
 
   const genres = type === "tv" ? TV_GENRES : MOVIE_GENRES;
 
