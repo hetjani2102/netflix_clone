@@ -29,8 +29,11 @@ function Banner({ onOpenModal }) {
 
         // Fetch official trailer for ambient background preview
         const type = randomMovie?.first_air_date ? "tv" : "movie";
-        const vRes = await api.get(`/${type}/${randomMovie.id}/videos?api_key=${API_KEY}`).catch(() => null);
-        const vids = vRes?.data?.results || [];
+        const [vRes, altVRes] = await Promise.all([
+          api.get(`/${type}/${randomMovie.id}/videos?api_key=${API_KEY}`).catch(() => null),
+          api.get(`/${type === "tv" ? "movie" : "tv"}/${randomMovie.id}/videos?api_key=${API_KEY}`).catch(() => null),
+        ]);
+        const vids = [...(vRes?.data?.results || []), ...(altVRes?.data?.results || [])];
         const trailer =
           vids.find((v) => (v.type === "Trailer" || v.type === "Teaser") && v.site === "YouTube") ||
           vids.find((v) => v.site === "YouTube");
@@ -38,7 +41,7 @@ function Banner({ onOpenModal }) {
         if (trailer) {
           setTimeout(() => {
             setVideoKey(trailer.key);
-          }, 1800);
+          }, 1000);
         }
       } catch (error) {
         console.error("Banner fetch error", error);

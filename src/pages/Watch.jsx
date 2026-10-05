@@ -152,23 +152,25 @@ function Watch() {
   useEffect(() => {
     async function loadMediaAndVideo() {
       try {
-        const [mediaRes, videosRes] = await Promise.all([
+        const [mediaRes, videosRes, altVideosRes] = await Promise.all([
           api.get(`/${type}/${id}?api_key=${API_KEY}`),
-          api.get(`/${type}/${id}/videos?api_key=${API_KEY}`),
+          api.get(`/${type}/${id}/videos?api_key=${API_KEY}`).catch(() => ({ data: { results: [] } })),
+          api.get(`/${type === "tv" ? "movie" : "tv"}/${id}/videos?api_key=${API_KEY}`).catch(() => ({ data: { results: [] } })),
         ]);
 
         setMedia(mediaRes.data);
 
-        const vids = videosRes.data?.results || [];
+        const vids = [
+          ...(videosRes.data?.results || []),
+          ...(altVideosRes?.data?.results || []),
+        ];
         const trailer =
-          vids.find((v) => v.type === "Trailer" && v.site === "YouTube") ||
+          vids.find((v) => (v.type === "Trailer" || v.type === "Teaser") && v.site === "YouTube") ||
           vids.find((v) => v.site === "YouTube") ||
-          null;
+          vids[0];
 
-        if (trailer) {
+        if (trailer?.key) {
           setVideoKey(trailer.key);
-        } else {
-          setVideoKey("dQw4w9WgXcQ");
         }
 
         if (type === "tv") {

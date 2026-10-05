@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { X, Play, Plus, Check, ThumbsUp, Volume2, VolumeX, Star, Clock, Calendar, Film } from "lucide-react";
+import { X, Play, Plus, Check, ThumbsUp, Volume2, VolumeX, Star, RotateCcw } from "lucide-react";
 import YouTube from "react-youtube";
 import api from "../services/api";
 import { API_KEY } from "../services/requests";
@@ -12,41 +12,67 @@ function MediaModal({ media, onClose, onSelectMedia }) {
   const [credits, setCredits] = useState(null);
   const [similar, setSimilar] = useState([]);
   const [videos, setVideos] = useState([]);
+  const [trailerKey, setTrailerKey] = useState(null);
+  const [isVideoPlaying, setIsVideoPlaying] = useState(false);
+  const [isMuted, setIsMuted] = useState(true);
+  const [videoEnded, setVideoEnded] = useState(false);
   const [selectedSeason, setSelectedSeason] = useState(1);
   const [seasonData, setSeasonData] = useState(null);
   const [inList, setInList] = useState(false);
   const [liked, setLiked] = useState(false);
   const [activeTab, setActiveTab] = useState("overview"); // overview, episodes, trailers, more
-  const [muted, setMuted] = useState(true);
 
   const navigate = useNavigate();
+  const playerRef = useRef(null);
 
   const id = media?.id;
-  const type = media?.first_air_date || media?.number_of_seasons ? "tv" : "movie";
+  const type =
+    media?.media_type === "tv" || media?.first_air_date || media?.number_of_seasons
+      ? "tv"
+      : "movie";
 
   useEffect(() => {
     if (!id) return;
 
+    setTrailerKey(null);
+    setIsVideoPlaying(false);
+    setVideoEnded(false);
     setInList(isInWatchlist(id));
     setLiked(isLiked(id));
 
     async function fetchAllDetails() {
       try {
-        const [detailsRes, creditsRes, videosRes, similarRes] = await Promise.all([
+        const [detailsRes, creditsRes, videosRes, altVideosRes, similarRes] = await Promise.all([
           api.get(`/${type}/${id}?api_key=${API_KEY}`),
           api.get(`/${type}/${id}/credits?api_key=${API_KEY}`).catch(() => ({ data: { cast: [] } })),
           api.get(`/${type}/${id}/videos?api_key=${API_KEY}`).catch(() => ({ data: { results: [] } })),
+          // Fallback check in case the media type is inverted
+          api.get(`/${type === "tv" ? "movie" : "tv"}/${id}/videos?api_key=${API_KEY}`).catch(() => ({ data: { results: [] } })),
           api.get(`/${type}/${id}/recommendations?api_key=${API_KEY}`).catch(() => ({ data: { results: [] } })),
         ]);
 
         setDetails(detailsRes.data);
         setCredits(creditsRes.data);
-        setVideos(videosRes.data?.results || []);
+        const vids = [
+          ...(videosRes.data?.results || []),
+          ...(altVideosRes.data?.results || []),
+        ];
+        setVideos(vids);
         setSimilar(similarRes.data?.results?.slice(0, 8) || []);
 
+        const trailer =
+          vids.find((v) => (v.type === "Trailer" || v.type === "Teaser") && v.site === "YouTube") ||
+          vids.find((v) => v.site === "YouTube");
+
+        if (trailer) {
+          setTimeout(() => {
+            setTrailerKey(trailer.key);
+          }, 600);
+        }
+
         if (type === "tv") {
-          const sRes = await api.get(`/tv/${id}/season/1?api_key=${API_KEY}`);
-          setSeasonData(sRes.data);
+          const sRes = await api.get(`/tv/${id}/season/1?api_key=${API_KEY}`).catch(() => null);
+          setSeasonData(sRes?.data || null);
         }
       } catch (err) {
         console.error("Error loading modal details", err);
@@ -84,9 +110,34 @@ function MediaModal({ media, onClose, onSelectMedia }) {
 
   if (!media) return null;
 
-  const trailerVideo = videos.find(
-    (v) => (v.type === "Trailer" || v.type === "Teaser") && v.site === "YouTube"
-  ) || videos[0];
+  const handlePlayerReady = (event) => {
+    playerRef.current = event.target;
+    playerRef.current.mute();
+    playerRef.current.playVideo();
+    setIsVideoPlaying(true);
+  };
+
+  const toggleSound = () => {
+    if (!playerRef.current) return;
+    if (isMuted) {
+      playerRef.current.unMute();
+      playerRef.current.setVolume(70);
+      setIsMuted(false);
+      showToast("Audio unmuted", "info");
+    } else {
+      playerRef.current.mute();
+      setIsMuted(true);
+      showToast("Audio muted", "info");
+    }
+  };
+
+  const restartTrailer = () => {
+    if (!playerRef.current) return;
+    playerRef.current.seekTo(0);
+    playerRef.current.playVideo();
+    setVideoEnded(false);
+    setIsVideoPlaying(true);
+  };
 
   const handleWatchlistToggle = () => {
     if (inList) {
@@ -115,7 +166,7 @@ function MediaModal({ media, onClose, onSelectMedia }) {
     }
   };
 
-  const matchPercent = Math.min(99, Math.max(78, Math.round((details?.vote_average || 8.0) * 10 + 12)));
+  const ratingScore = (details?.vote_average || media.vote_average || 8.0).toFixed(1);
 
   return (
     <div className="ott_modal_backdrop" onClick={onClose}>
@@ -124,16 +175,69 @@ function MediaModal({ media, onClose, onSelectMedia }) {
           <X size={22} />
         </button>
 
-        {/* Modal Header / Video Banner */}
+        {/* Modal Header / Video Preview Banner */}
         <div className="ott_modal_hero">
-          <img
-            src={`https://image.tmdb.org/t/p/original${
-              details?.backdrop_path || media.backdrop_path || media.poster_path
-            }`}
-            alt={media.title || media.name}
-            className="ott_modal_hero_img"
-          />
+          {/* Ambient Video Trailer Playing for the Chosen Movie/Series */}
+          {trailerKey && !videoEnded ? (
+            <div className={`modal_hero_video_bg ${isVideoPlaying ? "playing" : ""}`}>
+              <YouTube
+                videoId={trailerKey}
+                onReady={handlePlayerReady}
+                onEnd={() => setVideoEnded(true)}
+                opts={{
+                  width: "100%",
+                  height: "100%",
+                  playerVars: {
+                    autoplay: 1,
+                    controls: 0,
+                    mute: 1,
+                    loop: 1,
+                    playlist: trailerKey,
+                    modestbranding: 1,
+                    showinfo: 0,
+                    rel: 0,
+                    disablekb: 1,
+                  },
+                }}
+                className="modal_yt_frame"
+              />
+            </div>
+          ) : (
+            <img
+              src={`https://image.tmdb.org/t/p/original${
+                details?.backdrop_path || media.backdrop_path || media.poster_path
+              }`}
+              alt={media.title || media.name}
+              className="ott_modal_hero_img"
+            />
+          )}
+
           <div className="ott_modal_hero_gradient" />
+
+          {/* Sound Controls in Modal Hero */}
+          {trailerKey && (
+            <div className="modal_hero_sound_controls">
+              {!videoEnded ? (
+                <button
+                  className="modal_sound_btn"
+                  onClick={toggleSound}
+                  title={isMuted ? "Unmute Preview Audio" : "Mute Audio"}
+                  aria-label="Toggle Sound"
+                >
+                  {isMuted ? <VolumeX size={18} /> : <Volume2 size={18} />}
+                </button>
+              ) : (
+                <button
+                  className="modal_sound_btn"
+                  onClick={restartTrailer}
+                  title="Replay Preview Trailer"
+                  aria-label="Replay Trailer"
+                >
+                  <RotateCcw size={18} />
+                </button>
+              )}
+            </div>
+          )}
 
           <div className="ott_modal_hero_overlay">
             <h2 className="ott_modal_title">{details?.title || details?.name || media.title || media.name}</h2>
@@ -170,7 +274,9 @@ function MediaModal({ media, onClose, onSelectMedia }) {
           {/* Metadata Badges */}
           <div className="ott_modal_meta_row">
             <div className="meta_left">
-              <span className="ott_match_badge">{matchPercent}% Match</span>
+              <span className="ott_match_badge">
+                <Star size={13} fill="currentColor" /> {ratingScore} Rating
+              </span>
               <span className="ott_year_badge">
                 {(details?.release_date || details?.first_air_date || "").slice(0, 4)}
               </span>
@@ -178,32 +284,34 @@ function MediaModal({ media, onClose, onSelectMedia }) {
               <span className="ott_quality_badge">4K Ultra HD</span>
               <span className="ott_audio_badge">5.1 Atmos</span>
               {type === "movie" ? (
-                <span className="ott_duration">{details?.runtime ? `${details.runtime}m` : "2h 12m"}</span>
+                <span className="ott_duration">{details?.runtime ? `${details.runtime}m` : "2h 15m"}</span>
               ) : (
                 <span className="ott_duration">
-                  {details?.number_of_seasons || 1} {details?.number_of_seasons === 1 ? "Season" : "Seasons"}
+                  {details?.number_of_seasons ? `${details.number_of_seasons} Seasons` : "TV Series"}
                 </span>
               )}
             </div>
 
             <div className="meta_right">
               {details?.genres && (
-                <div className="ott_genre_tags">
-                  {details.genres.slice(0, 3).map((g) => (
-                    <span key={g.id} className="genre_pill">{g.name}</span>
+                <div className="genres_list">
+                  {details.genres.map((g) => (
+                    <span key={g.id} className="genre_pill">
+                      {g.name}
+                    </span>
                   ))}
                 </div>
               )}
             </div>
           </div>
 
-          {/* Navigation Tabs */}
+          {/* Modal Navigation Tabs */}
           <div className="ott_modal_tabs">
             <button
               className={`tab_btn ${activeTab === "overview" ? "active" : ""}`}
               onClick={() => setActiveTab("overview")}
             >
-              Overview & Cast
+              Overview
             </button>
             {type === "tv" && (
               <button
