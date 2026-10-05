@@ -141,9 +141,9 @@ function Banner({ onOpenModal }) {
         {/* Premiere Badge */}
         <div className="banner_premiere_tag">
           <Sparkles size={14} className="sparkle_tag_icon" />
-          <span>CINEMA PREMIERE</span>
+          <span>FEATURED SPOTLIGHT</span>
           <span className="media_type_indicator">
-            {mediaType === "tv" ? "ORIGINAL SERIES" : "EXCLUSIVE FEATURE"}
+            {mediaType === "tv" ? "TV SERIES" : "CINEMA FEATURE"}
           </span>
         </div>
 

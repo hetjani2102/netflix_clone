@@ -6,7 +6,7 @@ const CATEGORIES = [
   { id: "all", name: "All", path: "/home", icon: Clapperboard },
   { id: "action", name: "Action", path: "/movies?genre=28", icon: Zap },
   { id: "scifi", name: "Sci-Fi", path: "/movies?genre=878", icon: Compass },
-  { id: "originals", name: "Originals", path: "/popular", icon: Sparkles },
+  { id: "trending", name: "Trending", path: "/popular", icon: Sparkles },
   { id: "animation", name: "Animation", path: "/movies?genre=16", icon: Film },
   { id: "crime", name: "Crime & Thrillers", path: "/tv?genre=80", icon: ShieldAlert },
   { id: "docs", name: "Documentaries", path: "/movies?genre=99", icon: Globe },

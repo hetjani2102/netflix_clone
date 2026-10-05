@@ -136,10 +136,6 @@ function MediaModal({ media, onClose, onSelectMedia }) {
           <div className="ott_modal_hero_gradient" />
 
           <div className="ott_modal_hero_overlay">
-            <div className="ott_original_badge">
-              <span className="badge_n">M</span>
-              <span>ORIGINAL</span>
-            </div>
             <h2 className="ott_modal_title">{details?.title || details?.name || media.title || media.name}</h2>
 
             <div className="ott_modal_actions">

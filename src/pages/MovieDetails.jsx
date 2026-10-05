@@ -125,15 +125,10 @@ function MovieDetails() {
               <ArrowLeft size={18} /> Back
             </button>
 
-            <div className="ott_original_badge">
-              <span className="badge_n">M</span>
-              <span>{type === "tv" ? "SERIES" : "FILM"}</span>
-            </div>
-
             <h1 className="details_title">{movie.title || movie.name}</h1>
 
             <div className="details_meta_row">
-              <span className="ott_match_badge">{matchPercent}% Match</span>
+              <span className="ott_match_badge">★ {(movie.vote_average || 8.0).toFixed(1)} Rating</span>
               <span className="ott_year_badge">
                 {(movie.release_date || movie.first_air_date || "").slice(0, 4)}
               </span>

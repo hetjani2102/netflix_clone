@@ -28,7 +28,7 @@ import { showToast } from "./Toast";
 const HEADER_CATEGORIES = [
   { name: "Action & Adventure", path: "/movies?genre=28", tag: "Popular", icon: Zap },
   { name: "Sci-Fi & Cyberpunk", path: "/movies?genre=878", tag: "4K UHD", icon: Compass },
-  { name: "MoviesHub Originals", path: "/popular", tag: "Exclusive", icon: Sparkles },
+  { name: "Spotlight Hits", path: "/popular", tag: "Trending", icon: Sparkles },
   { name: "Animation & Anime", path: "/movies?genre=16", tag: "Family", icon: Film },
   { name: "Crime & Thrillers", path: "/tv?genre=80", tag: "18+ Noir", icon: ShieldAlert },
   { name: "Docuseries & Nature", path: "/movies?genre=99", tag: "Reality", icon: Globe },
