@@ -31,54 +31,54 @@ import { showToast } from "../components/Toast";
 
 const SERVERS = [
   {
-    id: "vidsrc",
-    name: "Server 1: VidSrc (Full HD Movie/Series)",
+    id: "autoembed",
+    name: "Server 1: AutoEmbed (High Speed HD)",
     tag: "HD • Fast",
     isEmbed: true,
     getUrl: (id, type, s, e) =>
       type === "tv"
-        ? `https://vidsrc.to/embed/tv/${id}/${s}/${e}`
-        : `https://vidsrc.to/embed/movie/${id}`,
+        ? `https://autoembed.co/tv/tmdb/${id}-${s}-${e}`
+        : `https://autoembed.co/movie/tmdb/${id}`,
   },
   {
-    id: "multiembed",
-    name: "Server 2: MultiEmbed (Alternative)",
-    tag: "Multi-Source",
+    id: "vidsrc-pm",
+    name: "Server 2: VidSrc Pro (Mirror HD)",
+    tag: "Fast HD",
     isEmbed: true,
     getUrl: (id, type, s, e) =>
       type === "tv"
-        ? `https://multiembed.mov/?video_id=${id}&tmdb=1&s=${s}&e=${e}`
-        : `https://multiembed.mov/?video_id=${id}&tmdb=1`,
+        ? `https://vidsrc.pm/embed/tv/${id}/${s}/${e}`
+        : `https://vidsrc.pm/embed/movie/${id}`,
+  },
+  {
+    id: "2embed",
+    name: "Server 3: 2Embed (Multi-Host)",
+    tag: "Alternative",
+    isEmbed: true,
+    getUrl: (id, type, s, e) =>
+      type === "tv"
+        ? `https://www.2embed.cc/embedtv/${id}&s=${s}&e=${e}`
+        : `https://www.2embed.cc/embed/${id}`,
+  },
+  {
+    id: "vidsrc-su",
+    name: "Server 4: VidSrc SU (Backup)",
+    tag: "Backup",
+    isEmbed: true,
+    getUrl: (id, type, s, e) =>
+      type === "tv"
+        ? `https://vidsrc.su/embed/tv/${id}/${s}/${e}`
+        : `https://vidsrc.su/embed/movie/${id}`,
   },
   {
     id: "vidsrc-xyz",
-    name: "Server 3: VidSrc.xyz (Fast Mirror)",
-    tag: "Fast HD",
+    name: "Server 5: VidSrc XYZ (Mirror)",
+    tag: "Mirror",
     isEmbed: true,
     getUrl: (id, type, s, e) =>
       type === "tv"
         ? `https://vidsrc.xyz/embed/tv?tmdb=${id}&season=${s}&episode=${e}`
         : `https://vidsrc.xyz/embed/movie?tmdb=${id}`,
-  },
-  {
-    id: "embed-su",
-    name: "Server 4: Embed.su (Multi-Host)",
-    tag: "1080p",
-    isEmbed: true,
-    getUrl: (id, type, s, e) =>
-      type === "tv"
-        ? `https://embed.su/embed/tv/${id}/${s}/${e}`
-        : `https://embed.su/embed/movie/${id}`,
-  },
-  {
-    id: "vidsrc-me",
-    name: "Server 5: VidSrc.me (Backup)",
-    tag: "Backup",
-    isEmbed: true,
-    getUrl: (id, type, s, e) =>
-      type === "tv"
-        ? `https://vidsrc.me/embed/tv?tmdb=${id}&sea=${s}&epi=${e}`
-        : `https://vidsrc.me/embed/movie?tmdb=${id}`,
   },
   {
     id: "official",
@@ -120,7 +120,7 @@ function Watch() {
   const seasonParam = Number(searchParams.get("season")) || 1;
   const episodeParam = Number(searchParams.get("episode")) || 1;
 
-  const [selectedServer, setSelectedServer] = useState("vidsrc"); // default to full movie/series server!
+  const [selectedServer, setSelectedServer] = useState("autoembed"); // default to ultra-fast active server!
   const [media, setMedia] = useState(null);
   const [videoKey, setVideoKey] = useState(null);
   const [isPlaying, setIsPlaying] = useState(true);
@@ -343,20 +343,62 @@ function Watch() {
   const currentEpData = episodesList.find((e) => e.episode_number === episodeParam);
   const activeServerObj = SERVERS.find((s) => s.id === selectedServer) || SERVERS[0];
 
+  const releaseDate = media?.first_air_date || media?.release_date;
+  const isUpcoming = Boolean(
+    (releaseDate && new Date(releaseDate) > new Date()) ||
+    media?.status === "In Production" ||
+    media?.status === "Planned"
+  );
+
   return (
     <div className="ott_watch_container" ref={watchContainerRef}>
       {/* Video Stream Rendering based on active Server */}
       <div className="ott_video_wrapper">
-        {/* Case 1: Third-party Embed Full Movie Server (VidSrc / MultiEmbed) */}
+        {/* Case 1: Third-party Embed Full Movie Server (AutoEmbed / VidSrc Pro / 2Embed) */}
         {activeServerObj.isEmbed && (
           <iframe
+            key={`${selectedServer}-${id}-${seasonParam}-${episodeParam}`}
             src={activeServerObj.getUrl(id, type, seasonParam, episodeParam)}
             title="Movie Stream Player"
             className="ott_embed_iframe"
             allowFullScreen
-            referrerPolicy="origin"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            referrerPolicy="no-referrer"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
           />
+        )}
+
+        {/* Upcoming Unreleased Title Overlay Notice */}
+        {isUpcoming && (
+          <div className="upcoming_stream_overlay">
+            <div className="upcoming_stream_card">
+              <div className="upcoming_badge_row">
+                <span className="upcoming_badge">UPCOMING TITLE</span>
+                <span className="upcoming_date_pill">
+                  Airs {releaseDate || "Later in 2026"}
+                </span>
+              </div>
+              <h2>{titleText} Has Not Aired Yet</h2>
+              <p>
+                This title is scheduled for future release on networks. Full streaming
+                episodes become available once broadcast begins. In the meantime, you can watch
+                the official teaser trailer or stream released hits!
+              </p>
+              <div className="upcoming_action_buttons">
+                <button
+                  className="upcoming_trailer_btn"
+                  onClick={() => setSelectedServer("official")}
+                >
+                  <Play size={16} fill="currentColor" /> Watch Official Trailer / Preview
+                </button>
+                <button
+                  className="upcoming_browse_btn"
+                  onClick={() => navigate("/popular")}
+                >
+                  Browse Released Series & Movies
+                </button>
+              </div>
+            </div>
+          </div>
         )}
 
         {/* Case 2: Custom MP4 Video Stream */}
