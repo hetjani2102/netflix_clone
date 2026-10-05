@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { Play, Info, Volume2, VolumeX, Plus, Check, RotateCcw } from "lucide-react";
+import { Play, Info, Volume2, VolumeX, Plus, Check, RotateCcw, Sparkles, Star } from "lucide-react";
 import YouTube from "react-youtube";
 import api from "../services/api";
 import requests, { API_KEY } from "../services/requests";
@@ -36,7 +36,6 @@ function Banner({ onOpenModal }) {
           vids.find((v) => v.site === "YouTube");
 
         if (trailer) {
-          // Delay video playback slightly for polished fade-in effect
           setTimeout(() => {
             setVideoKey(trailer.key);
           }, 1800);
@@ -97,7 +96,7 @@ function Banner({ onOpenModal }) {
 
   return (
     <header
-      className="ott_banner"
+      className="stream_hero_banner"
       style={{
         backgroundImage: movie?.backdrop_path
           ? `url(https://image.tmdb.org/t/p/original${movie.backdrop_path})`
@@ -135,29 +134,34 @@ function Banner({ onOpenModal }) {
       )}
 
       {/* Multi-stop cinematic gradient vignette */}
-      <div className="ott_banner_vignette" />
+      <div className="stream_banner_vignette" />
 
       {/* Foreground Content */}
-      <div className="ott_banner_content">
-        <div className="banner_brand_tag">
-          <span className="brand_icon">M</span>
-          <span className="brand_series">
-            {mediaType === "tv" ? "SERIES" : "FILM"}
+      <div className="stream_banner_content">
+        {/* Premiere Badge */}
+        <div className="banner_premiere_tag">
+          <Sparkles size={14} className="sparkle_tag_icon" />
+          <span>CINEMA PREMIERE</span>
+          <span className="media_type_indicator">
+            {mediaType === "tv" ? "ORIGINAL SERIES" : "EXCLUSIVE FEATURE"}
           </span>
         </div>
 
         <h1 className="banner_title">{movie?.title || movie?.name}</h1>
 
-        <div className="banner_top10_badge">
-          <div className="top10_square">TOP 10</div>
-          <span>#1 in Trending Titles Today</span>
+        {/* Global Trending Badge */}
+        <div className="banner_trending_pill">
+          <span className="trending_rank_dot" />
+          <span>#1 In Global Charts This Week</span>
         </div>
 
         <div className="banner_meta_row">
-          <span className="match_score">{matchPercent}% Match</span>
+          <span className="match_score">
+            <Star size={13} fill="currentColor" /> {matchPercent}% Rating
+          </span>
           <span className="meta_pill">16+</span>
           <span className="meta_pill">4K UHD</span>
-          <span className="meta_pill">5.1 Audio</span>
+          <span className="meta_pill">DOLBY ATMOS</span>
           <span className="release_year">
             {(movie?.release_date || movie?.first_air_date || "").slice(0, 4)}
           </span>
@@ -171,25 +175,25 @@ function Banner({ onOpenModal }) {
 
         <div className="banner_btn_group">
           <button
-            className="banner_btn_play"
+            className="banner_btn_play_primary"
             onClick={() => navigate(`/watch/${movie.id}/${mediaType}`)}
           >
-            <Play size={22} fill="currentColor" /> Play Now
+            <Play size={20} fill="currentColor" /> Start Watching
           </button>
 
           <button
-            className="banner_btn_info"
+            className="banner_btn_glass_info"
             onClick={() => onOpenModal && onOpenModal(movie)}
           >
-            <Info size={22} /> More Info
+            <Info size={19} /> Overview & Episodes
           </button>
 
           <button
-            className={`banner_btn_icon ${inList ? "active" : ""}`}
+            className={`banner_btn_icon_action ${inList ? "active" : ""}`}
             onClick={handleWatchlist}
             title={inList ? "Remove from My List" : "Add to My List"}
           >
-            {inList ? <Check size={20} /> : <Plus size={20} />}
+            {inList ? <Check size={19} /> : <Plus size={19} />}
           </button>
         </div>
       </div>
@@ -217,7 +221,7 @@ function Banner({ onOpenModal }) {
           </button>
         )}
 
-        <span className="banner_age_tag">16+</span>
+        <span className="banner_cert_tag">U/A 16+</span>
       </div>
     </header>
   );

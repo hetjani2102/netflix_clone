@@ -10,6 +10,7 @@ function Row({
   isLarge = false,
   isBackdrop = false,
   isTop10 = false,
+  isContinueWatching = false,
   onOpenModal,
 }) {
   const [movies, setMovies] = useState([]);
@@ -54,13 +55,20 @@ function Row({
     });
   };
 
+  const handleRemoveItem = (id) => {
+    setMovies((prev) => prev.filter((m) => m.id !== id));
+  };
+
   if (!movies || movies.length === 0) return null;
 
   return (
-    <div className={`ott_row ${isTop10 ? "row_top10" : ""}`}>
+    <div className={`stream_row ${isTop10 ? "row_ranked" : ""}`}>
       <div className="row_header">
-        <h2 className="row_title">{title}</h2>
-        <span className="row_explore_link">Explore All ›</span>
+        <div className="row_title_group">
+          {isTop10 && <span className="row_category_pill">TRENDING</span>}
+          <h2 className="row_title">{title}</h2>
+        </div>
+        <span className="row_explore_link">Explore Category ›</span>
       </div>
 
       <div className="row_slider_wrapper">
@@ -71,7 +79,7 @@ function Row({
             onClick={() => handleScroll("left")}
             aria-label="Scroll Left"
           >
-            <ChevronLeft size={34} />
+            <ChevronLeft size={28} />
           </button>
         )}
 
@@ -88,6 +96,8 @@ function Row({
               rank={isTop10 ? index + 1 : undefined}
               isLarge={isLarge}
               isBackdrop={isBackdrop}
+              isContinueWatching={isContinueWatching}
+              onRemoveContinueWatching={handleRemoveItem}
               onOpenModal={onOpenModal}
             />
           ))}
@@ -100,7 +110,7 @@ function Row({
             onClick={() => handleScroll("right")}
             aria-label="Scroll Right"
           >
-            <ChevronRight size={34} />
+            <ChevronRight size={28} />
           </button>
         )}
       </div>

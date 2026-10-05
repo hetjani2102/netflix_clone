@@ -10,7 +10,7 @@ const DEFAULT_PROFILES = [
   {
     id: "profile-1",
     name: "Alex",
-    avatar: "https://upload.wikimedia.org/wikipedia/commons/0/0b/Netflix-avatar.png",
+    avatar: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=120&auto=format&fit=crop&q=80",
     isKids: false,
     plan: "Premium 4K HDR",
   },
