@@ -71,24 +71,8 @@ function Row({
         <span className="row_explore_link">Explore Category ›</span>
       </div>
 
-      <div className="row_slider_wrapper">
-        {/* Left Arrow */}
-        {canScrollLeft && (
-          <button
-            className="row_arrow arrow_left"
-            onClick={() => handleScroll("left")}
-            aria-label="Scroll Left"
-          >
-            <ChevronLeft size={28} />
-          </button>
-        )}
-
-        {/* Carousel Slider */}
-        <div
-          className="row_slider"
-          ref={rowRef}
-          onScroll={checkScroll}
-        >
+      <div className="row_grid_wrapper">
+        <div className="row_grid">
           {movies.map((movie, index) => (
             <MovieCard
               key={`${movie.id}-${index}`}
@@ -102,17 +86,6 @@ function Row({
             />
           ))}
         </div>
-
-        {/* Right Arrow */}
-        {canScrollRight && (
-          <button
-            className="row_arrow arrow_right"
-            onClick={() => handleScroll("right")}
-            aria-label="Scroll Right"
-          >
-            <ChevronRight size={28} />
-          </button>
-        )}
       </div>
     </div>
   );
